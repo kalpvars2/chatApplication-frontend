@@ -1,0 +1,21 @@
+h5{
+	text-align: center;
+	margin-bottom: 2px;
+}
+
+.error{
+	color: red;
+	margin: 3px;
+	padding: 0px;
+}
+
+article{
+	border-radius: 25px;
+	background: #B6CC76;
+}
+
+@media only screen and (max-width: 481px){
+	article{
+		width: 80vw;
+	}
+}

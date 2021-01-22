@@ -1,0 +1,67 @@
+.button{
+	background: #487346;
+	color: white;
+	border: 2px solid white;
+	margin: 2px;
+}
+
+.button:hover{
+	background: white; 
+	color: #487346;
+	border: 2px solid #487346;
+}
+
+.buttonContainer{
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.chatList{
+	margin: 5px;
+	width: 30%;
+	height: 75vh;
+	overflow-y: auto;
+}
+
+li{
+	background: #89CC7C;
+	align-items: center;
+}
+
+.chatIcon{
+	height: 1.3em;
+	width: 1.3em;
+    background: #487346;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+}
+
+.chatContent{
+	padding-left: 10px;
+}
+
+.unreadMessage{
+	height: 1.1em;
+	margin: 0;
+	float: right;
+}
+
+@media screen and (max-width: 768px){
+	.chatList{
+	margin: 5px;
+	width: 80%;
+	height: 75vh;
+	overflow-y: auto;
+	}
+}
+
+@media screen and (max-width: 1000px){
+	.chatContent{
+		font-size: 0.8em;
+	}
+
+	.chatMessage{
+		font-size: 0.8em;
+	}
+}

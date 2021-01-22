@@ -1,0 +1,69 @@
+.message{
+    background: #B6CC76;
+    width: 75%;
+    padding: 5px;
+    margin: 0.4em 0.1em;
+    font-size: 0.9em;
+    border-radius: 10px;
+    clear: both;
+}
+
+.left{
+	float: left;
+}
+
+.backButton{
+	height: 1.6em;
+	margin-right: 0.5em;
+}
+
+.messageBox{
+	margin: 5px;
+	background: #487346;
+	height: 67vh;
+	display: block;
+	overflow-y: auto;
+}
+
+.right{
+	float: right;
+}
+
+.chatInput{
+	height: 7vh;
+}
+
+.chatHeader{
+	position: sticky;
+	top: 0px;
+    text-align: center;
+    color: white;
+    padding: 2px;
+    width: 100%;
+    border-radius: 0.7em;
+    background: #487346;
+    align-items: center;
+}
+
+.messageContainer{
+	overflow: auto;
+}
+
+.outerMostContainer{
+	width: 50%;
+	height: 75vh;
+}
+
+@media screen and (max-width: 768px){
+	.outerMostContainer{
+		width: 80%;
+		margin: 5px;
+		height: 75vh;
+	}
+}
+
+@media screen and (min-width: 768px){
+	#backButton{
+		display: none;
+	}
+}

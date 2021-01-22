@@ -1,0 +1,36 @@
+.dashboard{
+	margin: auto;
+}
+
+.chatPart{
+	justify-content: center;
+}
+
+.logoPart{
+	justify-content: center;
+	align-items: center;
+	font-weight: bolder;
+	-webkit-text-stroke-width: 1.5px;
+    -webkit-text-stroke-color: #487346;
+}
+
+li{
+	margin: 0.5em;
+}
+
+.chatListComponent{
+	margin: 4px;
+}
+
+.chatViewComponent: {
+	margin: 4px;
+}
+
+.logo{
+	width: 10vw;
+	height: 10vh;
+}
+
+.selectedChat{
+	border: 2px solid #487346;
+}

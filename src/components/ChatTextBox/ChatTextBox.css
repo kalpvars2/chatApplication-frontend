@@ -1,0 +1,15 @@
+.chatInput{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.sendMessage{
+	height: 2em;
+	margin-left: 1em;
+	padding: 0.1em;
+}
+
+#chatTextInput{
+	background: #B6CC76;
+}
