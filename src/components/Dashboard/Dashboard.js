@@ -8,7 +8,6 @@ import io from 'socket.io-client';
 import {apiURL} from '../../services/config.js';
 export const submitMessageContext = createContext();
 export const messageReadContext = createContext();
-const firebase = require('firebase');
 
 let socket;
 
@@ -57,27 +56,20 @@ const Dashboard = (props) => {
 			socket.emit('join', {email: email});
 			socket.on('receiveUpdatedChats', ({updatedChats}) => setChats(updatedChats));
 		}
-	}, [email]);
+	}, [email, ENDPOINT]);
 
 	const newChatBtnClicked = () => {
 		setNewChatFormVisible(true);
 		setContactListVisible(false);
 		setSelectedChat(null);
-		// console.log("newChatButtonClicked");
 	};
 
 	const selectChat = (chatIndex) => {
-		// console.log("Select chat called with index : ", chatIndex);
 		setNewChatFormVisible(false);
 		setContactListVisible(false);
 		setSelectedChat(chatIndex);
 		messageRead(chatIndex);
 	};
-
-	// useEffect(() => {
-	// 	if(selectedChat !== null)
-	// 		messageRead();
-	// }, [chats[selectedChat]]);
 
 	const buildDocKey = (friend) => {
 		return [email, friend].sort().join(':');
@@ -88,62 +80,55 @@ const Dashboard = (props) => {
 	};
 
 	const submitMessage = (msg) => {
-		// _ref = msgRef;
-		// console.log(_ref.current);
-		// const msg = msgRef.current === null ? msgRef : msgRef.current.value;
 		if(checkTextValid(msg)){
 			if(socket){
+				const receiverMail = chats[selectedChat].users.filter(user => user !== email)[0];
 				const messageObject = {
 					message: msg,
 					sender: email,
-					receiver: chats[selectedChat].users.filter(user => user !== email)[0]
+					receiver: receiverMail
 				};
-				socket.emit('submitMessage', {messageObject});
+				const chatObject = {
+					docKey: [email, receiverMail].sort().join(":"),
+					receiverHasRead: false,
+					messages: [messageObject],
+					users: [email, receiverMail]
+				}
+				socket.emit('submitMessage', {chatObject});
 			}
-			// firebase.default
-			// 	.firestore()
-			// 	.collection('chats')
-			// 	.doc(docKey)
-			// 	.update({
-			// 		messages: firebase.default.firestore.FieldValue.arrayUnion({
-			// 			sender: email,
-			// 			message: msg
-			// 		}),
-			// 		receiverHasRead: false,
-			// 		timestamp: Date.now()
-			// 	})
 		}
 		const chatTextInput = document.getElementById("chatTextInput");
 		if(chatTextInput !== null)
 			chatTextInput.value = "";
-		// if(_ref.current !== null)
-		// 	_ref.current.value = "";
-	}
+	};
 
 	const goToChat = (docKey, message) => {
+		const chat = chats.filter(chat => chat.docKey === docKey)[0];
+		const receiverMail = docKey.split(':').filter(user => user !== email)[0];
 		const messageObject = {
 			message: message,
 			sender: email,
 			receiver: docKey.split(':').filter(user => user !== email)[0]
 		};
-		socket.emit('submitMessage', {messageObject});
+		const chatObject = {
+			docKey: [email, receiverMail].sort().join(":"),
+			receiverHasRead: false,
+			messages: [messageObject],
+			users: [email, receiverMail]
+		};
+		socket.emit('submitMessage', {chatObject});
 		chats.filter((chat, index) => {
 			if(chat.docKey === docKey)
 				selectChat(index);
 		});
-		// const usersInChat = docKey.split(':');
-		// const chat = chats.find(_chat => usersInChat.every(_user => _chat.users.includes(_user)));
-		// await selectChat(chats.indexOf(chat));
-		// setTimeout(console.log(selectedChat), 2000);
-		// setTimeout(submitMessage(message), 1000);
 	};
 
 	useEffect(() => {
-		if(selectedChat !== null)
+		if(selectedChat === null)
 			selectChat(chats.length-1);
 	}, [chats.length]);
 
-	const newChatSubmit = async (chatObj) => {
+	const newChatSubmit = (chatObj) => {
 		const chatObject = {
 			docKey: buildDocKey(chatObj.sendTo),
 			users: [email, chatObj.sendTo],
@@ -155,28 +140,15 @@ const Dashboard = (props) => {
 			}]
 		};
 		if(socket){
-			socket.emit('newChat', {chatObject});
+			socket.emit('submitMessage', {chatObject});
 		};
-		// const messageObject = 
-		// const docKey = buildDocKey(chatObj.sendTo);
-		// await firebase.default
-		// 	.firestore()
-		// 	.collection('chats')
-		// 	.doc(docKey)
-		// 	.set({
-		// 		receiverHasRead: false,
-		// 		timestamp: Date.now(),
-		// 		users: [email, chatObj.sendTo],
-		// 		messages: [{
-		// 			message: chatObj.message,
-		// 			sender: email
-		// 		}]
-		// 	})
 	};
 
 	const clickedChatWhereNotSender = (chatIndex) => chats[chatIndex].messages[chats[chatIndex].messages.length - 1].sender !== email;
 
 	const messageRead = (chatIndex = selectedChat) => {
+		if(selectedChat === null)
+			return;
 		if(clickedChatWhereNotSender(chatIndex)){
 			const docKey = buildDocKey(chats[chatIndex].users.filter(user => user !== email)[0]);
 			if(socket){
@@ -184,31 +156,6 @@ const Dashboard = (props) => {
 			}
 		}
 	}
-
-
-	// useEffect(() => {
-	// 	firebase.default.auth().onAuthStateChanged(async _usr => {
-	// 		if(!_usr)
-	// 			props.history.push('/login');
-	// 		else{
-	// 			await firebase.default
-	// 				.firestore()
-	// 				.collection('chats')
-	// 				.where('users', 'array-contains', _usr.email)
-	// 				.onSnapshot(async result => {
-	// 					const chats = result.docs.map(_doc => _doc.data());
-	// 					await setEmail(_usr.email);
-	// 					await setChats(chats);
-	// 				})
-	// 		}
-	// 	});
-	// 	return () => {
-	// 		setChats([]);
-	// 		setEmail('');
-	// 		setSelectedChat(null);
-	// 		setNewChatFormVisible(false);
-	// 	}
-	// }, []);
 
 	if(window.innerWidth <= 650){
 		if(contactListVisible){

@@ -1,13 +1,12 @@
 import React, {useState, useRef, useEffect} from 'react';
 import './NewChat.css';
-const firebase = require('firebase');
 
 const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => { 
 	const [friendMail, setFriendMail] = useState('');
 	const [message, setMessage] = useState('');
     const [newChatError, setNewChatError] = useState('');
-    const [checkUserExists, setCheckUserExists] = useState()
-    const [checkChatExists, setCheckChatExists]  = useState()
+    // const [checkUserExists, setCheckUserExists] = useState()
+    // const [checkChatExists, setCheckChatExists]  = useState()
 	const messageRef = useRef();
 
 	const onUserTyping = (type, event) => {
@@ -30,16 +29,16 @@ const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => {
 		return new Promise((resolve, reject)=>{
 			const docKey = buildDocKey();
 			socket.emit('checkChatExists', {docKey: docKey}, ({result}) => {
-				setCheckChatExists(result)
+				// setCheckChatExists(result)
 				resolve(result);
 			});
 		})
-	}
+	};
 
 	const userExists = () => {
 		return new Promise((resolve, reject)=>{
 			socket.emit('checkUserExists', {email: friendMail}, ({result}) => {
-				setCheckUserExists(result)
+				// setCheckUserExists(result)
 				resolve(result)
 			});
 		})
@@ -47,11 +46,18 @@ const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => {
 
 	const onSubmitNewChat = async (event) => {
 		event.preventDefault();
+		if(userEmail === friendMail)
+			return setNewChatError('Cannot create chat to self.');
         const friendAlreadyExists = await userExists();
 		if(friendAlreadyExists){
-            setNewChatError(``)
-			const chatAlreadyExists = await chatExists();
-			chatAlreadyExists ? goToChatFn(buildDocKey(), message) : newChatSubmitFn({ sendTo: friendMail, message: messageRef.current.value});
+			if(message.length){
+				const chatAlreadyExists = await chatExists();
+				if(chatAlreadyExists) 
+					goToChatFn(buildDocKey(), message);
+				else 
+					newChatSubmitFn({ sendTo: friendMail, message: messageRef.current.value});
+			} else 
+				setNewChatError('Message field cannot be empty.');
 		} else {
 			setNewChatError(`Entered e-mail doesn't exist.`);
 		}
@@ -71,7 +77,9 @@ const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => {
 			        <input required ref={messageRef} onChange={(event) => onUserTyping('message', event)} className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" type="text" name="message"  id="message" />
 			      </div>
 			    </fieldset>
-			    <span className="center red">{newChatError}</span>
+			    <div className="flex">
+				    <span className="center red">{newChatError}</span>
+			    </div>
 			    <div className="flex submitNewChatDiv">
 			      <input onClick={(event) => onSubmitNewChat(event)} className="b ph3 pv2 button br4 input-reset ba grow pointer f6 dib" type="button" value="Create Chat" />
 			    </div>
