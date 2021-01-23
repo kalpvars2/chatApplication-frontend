@@ -5,9 +5,9 @@ const firebase = require('firebase');
 const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => { 
 	const [friendMail, setFriendMail] = useState('');
 	const [message, setMessage] = useState('');
-	const [newChatError, setNewChatError] = useState('');
-	const checkUserExists = useRef(false);
-	const checkChatExists = useRef(false);
+    const [newChatError, setNewChatError] = useState('');
+    const [checkUserExists, setCheckUserExists] = useState()
+    const [checkChatExists, setCheckChatExists]  = useState()
 	const messageRef = useRef();
 
 	const onUserTyping = (type, event) => {
@@ -27,42 +27,30 @@ const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => {
 	}
 
 	const chatExists = async () => {
-		const docKey = buildDocKey();
-		await socket.emit('checkChatExists', {docKey: docKey}, ({result}) => {
-			checkChatExists.current = result;
-		});
-		// const chat = await firebase.default
-		// 				      .firestore()
-		// 				      .collection('chats')
-		// 				      .doc(docKey)
-		// 				      .get();
-		console.log("checkChatExists", Boolean(checkChatExists.current));
-		return checkChatExists.current;
+		return new Promise((resolve, reject)=>{
+			const docKey = buildDocKey();
+			socket.emit('checkChatExists', {docKey: docKey}, ({result}) => {
+				setCheckChatExists(result)
+				resolve(result);
+			});
+		})
 	}
 
-	const userExists = async () => {
-		await socket.emit('checkUserExists', {email: friendMail}, ({result}) => {
-			checkUserExists.current = result;
-		});
-		// console.log("check");
-		console.log("checkUserExists", Boolean(checkUserExists.current));
-		return checkUserExists.current;
-		// const usersSnapshot = await firebase.default
-		// 								.firestore()
-		// 								.collection('users')
-		// 								.get()
-		// const exists = usersSnapshot.docs
-		// 					.map(doc => doc.data().email)
-		// 					.includes(friendMail);
-		// setServerError(!exists);
+	const userExists = () => {
+		return new Promise((resolve, reject)=>{
+			socket.emit('checkUserExists', {email: friendMail}, ({result}) => {
+				setCheckUserExists(result)
+				resolve(result)
+			});
+		})
 	}
 
 	const onSubmitNewChat = async (event) => {
 		event.preventDefault();
-		const friendAlreadyExists = await userExists();
+        const friendAlreadyExists = await userExists();
 		if(friendAlreadyExists){
+            setNewChatError(``)
 			const chatAlreadyExists = await chatExists();
-			console.log("chatAlreadyExists", chatAlreadyExists);
 			chatAlreadyExists ? goToChatFn(buildDocKey(), message) : newChatSubmitFn({ sendTo: friendMail, message: messageRef.current.value});
 		} else {
 			setNewChatError(`Entered e-mail doesn't exist.`);
@@ -87,11 +75,6 @@ const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => {
 			    <div className="flex submitNewChatDiv">
 			      <input onClick={(event) => onSubmitNewChat(event)} className="b ph3 pv2 button br4 input-reset ba grow pointer f6 dib" type="button" value="Create Chat" />
 			    </div>
-			    {/*
-			    	signInError 
-			    	? <div><h5 className="error">{signInError}</h5></div>
-			    	: null
-			    */}
 			  </div>
 			</main>
 		</article>
