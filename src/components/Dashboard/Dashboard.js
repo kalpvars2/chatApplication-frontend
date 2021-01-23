@@ -41,6 +41,7 @@ const Dashboard = (props) => {
 					setEmail(data.value.email);
 				}
 			})
+			setContactListVisible(true);
 		}
 		return async () => {
 			await setChats([]);
@@ -124,7 +125,7 @@ const Dashboard = (props) => {
 	};
 
 	useEffect(() => {
-		if(selectedChat === null)
+		if(selectedChat !== null && chats[chats.length-1].messages[chats[chats.length-1].messages.length-1].sender === email)
 			selectChat(chats.length-1);
 	}, [chats.length]);
 
@@ -141,6 +142,8 @@ const Dashboard = (props) => {
 		};
 		if(socket){
 			socket.emit('submitMessage', {chatObject});
+			setNewChatFormVisible(false);
+			selectChat(chats.length-1);
 		};
 	};
 
