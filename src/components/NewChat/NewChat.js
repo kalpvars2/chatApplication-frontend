@@ -5,9 +5,11 @@ const firebase = require('firebase');
 const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => { 
 	const [friendMail, setFriendMail] = useState('');
 	const [message, setMessage] = useState('');
-	const [newChatError, setNewChatError] = useState('');
-	const checkUserExists = useRef(false);
-	const checkChatExists = useRef(false);
+    const [newChatError, setNewChatError] = useState('');
+    const [checkUserExists, setCheckUserExists] = useState()
+    const [checkChatExists, setCheckChatExists]  = useState()
+	//const checkUserExists = useRef(false);
+	//const checkChatExists = useRef(false);
 	const messageRef = useRef();
 
 	const onUserTyping = (type, event) => {
@@ -27,26 +29,33 @@ const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => {
 	}
 
 	const chatExists = async () => {
+		return new Promise((resolve, reject)=>{
 		const docKey = buildDocKey();
-		await socket.emit('checkChatExists', {docKey: docKey}, ({result}) => {
-			checkChatExists.current = result;
+		socket.emit('checkChatExists', {docKey: docKey}, ({result}) => {
+			setCheckChatExists(result)
+			resolve(result);
 		});
+	})
 		// const chat = await firebase.default
 		// 				      .firestore()
 		// 				      .collection('chats')
 		// 				      .doc(docKey)
 		// 				      .get();
-		console.log("checkChatExists", Boolean(checkChatExists.current));
-		return checkChatExists.current;
+		//console.log("checkChatExists", Boolean(checkChatExists));
+		//return checkChatExists
 	}
 
-	const userExists = async () => {
-		await socket.emit('checkUserExists', {email: friendMail}, ({result}) => {
-			checkUserExists.current = result;
-		});
+	const userExists = () => {
+		return new Promise((resolve, reject)=>{
+			socket.emit('checkUserExists', {email: friendMail}, ({result}) => {
+				setCheckUserExists(result)
+				console.log("checkUserExists", Boolean(result));
+				resolve(result)
+			//return checkUserExists;
+			}
+		);
+	})
 		// console.log("check");
-		console.log("checkUserExists", Boolean(checkUserExists.current));
-		return checkUserExists.current;
 		// const usersSnapshot = await firebase.default
 		// 								.firestore()
 		// 								.collection('users')
@@ -59,8 +68,9 @@ const NewChat = ({userEmail, socket, newChatSubmitFn, goToChatFn}) => {
 
 	const onSubmitNewChat = async (event) => {
 		event.preventDefault();
-		const friendAlreadyExists = await userExists();
+        const friendAlreadyExists = await userExists();
 		if(friendAlreadyExists){
+            setNewChatError(``)
 			const chatAlreadyExists = await chatExists();
 			console.log("chatAlreadyExists", chatAlreadyExists);
 			chatAlreadyExists ? goToChatFn(buildDocKey(), message) : newChatSubmitFn({ sendTo: friendMail, message: messageRef.current.value});
