@@ -5,6 +5,7 @@ import NewChat from '../NewChat/NewChat';
 import {ReactComponent as ChatLogo} from '../../assets/svg/chat.svg';
 import './Dashboard.css';
 import io from 'socket.io-client';
+import {apiURL} from '../../services/config.js';
 export const submitMessageContext = createContext();
 export const messageReadContext = createContext();
 const firebase = require('firebase');
@@ -17,14 +18,14 @@ const Dashboard = (props) => {
 	const [email, setEmail] = useState('');
 	const [chats, setChats] = useState([]);
 	const [contactListVisible, setContactListVisible] = useState(true);
-	const ENDPOINT = 'localhost:8000';
+	const ENDPOINT = apiURL;
 
 	useEffect(() => {
 		const token = localStorage.getItem('chatAppToken');
 		if(!token)
 			props.history.push('/login');
 		else{
-			fetch("http://localhost:8000/dashboard", {
+			fetch(`${apiURL}/dashboard`, {
 				method: 'get',
 				headers: {
 					'Content-Type' : 'application/json',

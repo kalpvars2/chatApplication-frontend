@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {apiURL} from '../../services/config.js';
 import './Login.css';
 
 const Login = (props) => {
@@ -18,7 +19,7 @@ const Login = (props) => {
 
 	const onSubmitSignIn = (event) => {
 		event.preventDefault();
-		fetch("http://localhost:8000/login", {
+		fetch(`${apiURL}/login`, {
 			method: 'post',
 			headers: {
 				'Content-Type': 'application/json'

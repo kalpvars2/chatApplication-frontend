@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {apiURL} from '../../services/config.js';
 import './SignUp.css';
 
 const SignUp = (props) => {
@@ -26,7 +27,7 @@ const SignUp = (props) => {
 			setSignUpError('Passwords do not match. Try again!');
 			return;
 		}
-		fetch("http://localhost:8000/register", {
+		fetch(`${apiURL}/register`, {
 			method: 'post',
 			headers: {'Content-Type':'application/json'},
 			body: JSON.stringify({
